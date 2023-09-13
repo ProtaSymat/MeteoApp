@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Météo App{% endblock %}
+
+{% block body %}
+<section class="weather-container">
+    <div class="image-column">
+        <img src="" alt="Weather" />
+        <form method="get" id="meteo">
+            <input type="text" id="ville" name="ville" required placeholder="Rechercher une ville, un pays">
+            <input type="submit" value="Envoyer"><i class="fa-solid fa-magnifying-glass"></i></input>
+        </form>
+
+        <div id="resultat"></div>
+    </div>
+    <div class="text-column">
+        <h1>Météo à <span id="ville-nom">✅</span></h1>
+        <p id="temperature">Température : °C</p>
+        <p>Météo :</p>
+    </div>
+</section>
+<script src="https://kit.fontawesome.com/a84b9cdddf.js" crossorigin="anonymous"></script>
+
+<script>
+    const parametres = {
+        clé: "d6bb55d1c94a4701be2cb7f1cf57e715",
+        unité: "metric",
+        langue: "fr",
+    }
+
+    const form = document.getElementById('meteo');
+    const villeInput = document.getElementById('ville');
+    const resultatDiv = document.getElementById('resultat');
+    const temperatureParagraphe = document.getElementById('temperature');
+    const villeNomSpan = document.getElementById('ville-nom');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Empêcher la soumission du formulaire par défaut
+
+        const nouvelleVille = villeInput.value;
+
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${nouvelleVille}&appid=${parametres.clé}&units=${parametres.unité}&lang=${parametres.langue}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.cod === "404") {
+                    resultatDiv.innerHTML = `La localisation ${nouvelleVille} n'existe pas`;
+                    temperatureParagraphe.innerHTML = "Température : N/A";
+                } else {
+                    const { name, weather, main } = data;
+                    villeNomSpan.textContent = name;
+                    temperatureParagraphe.innerHTML = `Température : ${main.temp}°C`;
+                }
+            });
+    });
+</script>
+{% endblock %}
